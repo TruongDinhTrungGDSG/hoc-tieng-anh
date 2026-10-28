@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>English Buddy 3 - Ôn từ vựng & luyện phát âm</title>
+  <style>
+    :root{
+      --bg:#f7fbff;
+      --card:#ffffff;
+      --ink:#20304a;
+      --muted:#66758d;
+      --primary:#5b7cfa;
+      --primary2:#8b6cff;
+      --good:#2fbf71;
+      --bad:#ef6a6a;
+      --warn:#ffb648;
+      --line:#dfe8f4;
+      --soft:#eef3ff;
+      --shadow:0 14px 35px rgba(63,83,120,.14);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-rounded, "Nunito", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--ink);
+      background:linear-gradient(180deg,#eef7ff 0%,#fbfdff 44%,#fff9ee 100%);
+      min-height:100vh;
+    }
+    button,select{font:inherit}
+    .app{max-width:1050px;margin:0 auto;padding:18px 18px 40px}
+    .hero{
+      background:linear-gradient(135deg,#ffffff 0%,#f4f1ff 100%);
+      border:1px solid #e6e3ff;
+      box-shadow:var(--shadow);
+      border-radius:30px;
+      padding:22px;
+      display:flex;
+      gap:18px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .hero h1{margin:0 0 6px;font-size:clamp(26px,4vw,42px);line-height:1.05}
+    .hero p{margin:0;color:var(--muted);font-size:16px}
+    .mascot{font-size:58px;filter:drop-shadow(0 8px 10px rgba(0,0,0,.08))}
+    .topbar{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+    .pill{
+      border:none;background:#fff;padding:11px 16px;border-radius:999px;cursor:pointer;
+      box-shadow:0 6px 16px rgba(45,62,92,.08);color:#44516a;font-weight:800;
+      border:2px solid transparent;
+    }
+    .pill.active{background:var(--primary);color:#fff;border-color:#4467f2}
+    .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 16px}
+    .toolbar select,.toolbar button{
+      padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:#fff;color:var(--ink);
+    }
+    .panel{
+      background:rgba(255,255,255,.92);border:1px solid #ebeff6;border-radius:var(--radius);
+      box-shadow:var(--shadow);padding:22px;min-height:500px;
+    }
+    .hidden{display:none!important}
+    .learn-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:22px;align-items:stretch}
+    .flashcard{
+      min-height:370px;border-radius:28px;background:linear-gradient(145deg,#fff,#eef4ff);
+      border:2px solid #dfe8ff;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:24px;text-align:center;position:relative;overflow:hidden;
+    }
+    .flashcard:before,.flashcard:after{content:"";position:absolute;border-radius:50%;background:rgba(126,101,255,.08)}
+    .flashcard:before{width:160px;height:160px;right:-50px;top:-40px}.flashcard:after{width:110px;height:110px;left:-35px;bottom:-30px}
+    .emoji{font-size:88px;line-height:1;margin-bottom:10px;z-index:1}
+    .word{font-size:46px;font-weight:900;letter-spacing:.5px;color:#3043a3;z-index:1}
+    .meaning{font-size:22px;color:#58667c;margin-top:6px;z-index:1}
+    .phonetic{font-size:18px;color:#7a679f;margin-top:4px;z-index:1}
+    .listen-btn,.main-btn,.mic-btn{
+      border:none;border-radius:18px;padding:13px 18px;cursor:pointer;font-weight:900;
+      box-shadow:0 8px 18px rgba(73,91,146,.14);transition:.18s transform,.18s box-shadow;
+    }
+    .listen-btn:hover,.main-btn:hover,.mic-btn:hover{transform:translateY(-2px)}
+    .listen-btn{margin-top:18px;background:#fff;color:var(--primary);border:2px solid #dce4ff}
+    .main-btn{background:var(--primary);color:#fff}.main-btn.alt{background:#fff;color:var(--primary);border:2px solid #dce4ff}
+    .side-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:14px}
+    .side-card h3{margin:0;font-size:22px}.tip{background:#fff9e8;border:1px solid #ffe1a7;padding:14px;border-radius:18px;color:#765821}
+    .controls{display:flex;gap:10px;flex-wrap:wrap}
+    .progress{height:12px;background:#edf1f7;border-radius:999px;overflow:hidden}.progress>div{height:100%;background:linear-gradient(90deg,var(--primary),var(--primary2));width:0}
+    .small{font-size:14px;color:var(--muted)}
+
+    .quiz-wrap{max-width:780px;margin:0 auto}
+    .question-box{padding:24px;border-radius:24px;background:linear-gradient(145deg,#f8fbff,#fff);border:1px solid #e3ebf6;text-align:center}
+    .question-emoji{font-size:72px}.question-title{font-size:26px;font-weight:900;margin:10px 0 18px}
+    .answers{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .answer{
+      border:2px solid #e3e9f3;background:#fff;padding:16px;border-radius:18px;cursor:pointer;font-size:20px;font-weight:800;color:#42506a;
+    }
+    .answer:hover{border-color:#b9c9ff;background:#f8faff}.answer.correct{background:#eafff2;border-color:#6bd699;color:#187c48}.answer.wrong{background:#fff0f0;border-color:#ff9e9e;color:#b53c3c}
+    .scorebar{display:flex;justify-content:space-between;gap:10px;align-items:center;margin:0 0 14px;flex-wrap:wrap}
+    .badge{background:#f0f4ff;border-radius:999px;padding:9px 13px;font-weight:900;color:#4058b6}
+    .feedback{min-height:38px;margin-top:12px;font-weight:900;font-size:19px}
+
+    .speak-wrap{max-width:800px;margin:0 auto;text-align:center}
+    .speak-card{background:linear-gradient(145deg,#fff,#f4f0ff);border:2px solid #e4dcff;border-radius:28px;padding:26px}
+    .speak-emoji{font-size:84px}.speak-word{font-size:48px;font-weight:900;color:#5c43b4;margin:4px 0}.speak-meaning{font-size:21px;color:var(--muted)}
+    .mic-btn{font-size:20px;margin-top:18px;background:#ff6d8a;color:#fff;padding:15px 22px}.mic-btn.listening{animation:pulse 1s infinite;background:#e84f6d}
+    @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(232,79,109,.38)}70%{box-shadow:0 0 0 18px rgba(232,79,109,0)}100%{box-shadow:0 0 0 0 rgba(232,79,109,0)}}
+    .result-box{margin-top:18px;padding:16px;border-radius:18px;background:#fff;border:1px solid var(--line);min-height:100px;text-align:left}
+    .stars{font-size:32px;letter-spacing:3px}.heard{font-weight:800}.good{color:var(--good)}.bad{color:var(--bad)}
+    .footer-note{margin-top:16px;color:var(--muted);font-size:13px;line-height:1.45}
+    .mini-list{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+    .mini-word{padding:10px;border:1px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;font-weight:800}.mini-word:hover{background:#f6f8ff}
+
+    @media (max-width:780px){
+      .learn-grid{grid-template-columns:1fr}.answers{grid-template-columns:1fr}.mini-list{grid-template-columns:repeat(2,1fr)}
+      .word,.speak-word{font-size:38px}.panel{padding:16px}.hero{padding:18px}.mascot{font-size:46px}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <section class="hero">
+    <div>
+      <h1>🌟 English Buddy 3</h1>
+      <p>Ôn từ vựng • Nghe phát âm • Chơi trắc nghiệm • Luyện nói</p>
+    </div>
+    <div class="mascot" aria-hidden="true">🦊📚</div>
+  </section>
+
+  <nav class="topbar" aria-label="Chọn hoạt động">
+    <button class="pill active" data-tab="learn">📘 Học từ vựng</button>
+    <button class="pill" data-tab="quiz">🎯 Trắc nghiệm</button>
+    <button class="pill" data-tab="speak">🎤 Luyện phát âm</button>
+  </nav>
+
+  <div class="toolbar">
+    <label for="category"><strong>Chủ đề:</strong></label>
+    <select id="category"></select>
+    <button id="shuffleBtn">🔀 Xáo trộn</button>
+  </div>
+
+  <main>
+    <section id="learn" class="panel">
+      <div class="learn-grid">
+        <div class="flashcard">
+          <div class="emoji" id="learnEmoji">🍎</div>
+          <div class="word" id="learnWord">apple</div>
+          <div class="meaning" id="learnMeaning">quả táo</div>
+          <div class="phonetic" id="learnPhonetic">/ˈæp.əl/</div>
+          <button class="listen-btn" id="listenLearn">🔊 Nghe phát âm</button>
+        </div>
+        <div class="side-card">
+          <h3>Em hãy học theo 3 bước</h3>
+          <div class="tip">👀 <strong>Nhìn:</strong> Quan sát hình và đọc từ.</div>
+          <div class="tip">👂 <strong>Nghe:</strong> Nhấn nút để nghe mẫu.</div>
+          <div class="tip">🗣️ <strong>Nói:</strong> Đọc lại từ 2 lần.</div>
+          <div class="controls">
+            <button class="main-btn alt" id="prevWord">⬅ Từ trước</button>
+            <button class="main-btn" id="nextWord">Từ tiếp ➡</button>
+          </div>
+          <div>
+            <div class="small" id="learnCount">1 / 1</div>
+            <div class="progress"><div id="learnProgress"></div></div>
+          </div>
+          <div class="small">Mẹo: Em có thể nhấn sang <strong>🎤 Luyện phát âm</strong> để AI nhận diện từ em vừa nói.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="quiz" class="panel hidden">
+      <div class="quiz-wrap">
+        <div class="scorebar">
+          <span class="badge" id="quizStep">Câu 1/10</span>
+          <span class="badge" id="quizScore">⭐ 0 điểm</span>
+        </div>
+        <div class="question-box">
+          <div class="question-emoji" id="quizEmoji">🐱</div>
+          <div class="question-title" id="quizTitle">Hình này là từ nào?</div>
+          <div class="answers" id="answers"></div>
+          <div class="feedback" id="quizFeedback"></div>
+          <button class="main-btn hidden" id="nextQuestion">Câu tiếp theo ➡</button>
+          <button class="main-btn hidden" id="restartQuiz">🔁 Chơi lại</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="speak" class="panel hidden">
+      <div class="speak-wrap">
+        <div class="speak-card">
+          <div class="speak-emoji" id="speakEmoji">🐶</div>
+          <div class="speak-word" id="speakWord">dog</div>
+          <div class="speak-meaning" id="speakMeaning">con chó</div>
+          <button class="listen-btn" id="listenSpeak">🔊 Nghe mẫu</button>
+          <br/>
+          <button class="mic-btn" id="micBtn">🎤 Nhấn và nói</button>
+          <div class="result-box" id="speechResult">
+            <div class="small">AI sẽ nghe từ em nói và kiểm tra xem có nhận đúng từ hay không.</div>
+          </div>
+        </div>
+        <div class="controls" style="justify-content:center;margin-top:14px">
+          <button class="main-btn alt" id="speakPrev">⬅ Từ trước</button>
+          <button class="main-btn" id="speakNext">Từ tiếp ➡</button>
+        </div>
+        <div class="mini-list" id="miniList"></div>
+        <div class="footer-note">
+          Phần luyện nói dùng tính năng nhận dạng giọng nói của trình duyệt. Hoạt động tốt nhất trên Google Chrome. Nếu trình duyệt không hỗ trợ hoặc micro bị chặn, học sinh vẫn có thể dùng phần <strong>Học từ vựng</strong> và <strong>Trắc nghiệm</strong> bình thường.
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const WORDS = [
+  {word:'apple', meaning:'quả táo', emoji:'🍎', ipa:'/ˈæp.əl/', category:'Food'},
+  {word:'banana', meaning:'quả chuối', emoji:'🍌', ipa:'/bəˈnɑː.nə/', category:'Food'},
+  {word:'milk', meaning:'sữa', emoji:'🥛', ipa:'/mɪlk/', category:'Food'},
+  {word:'bread', meaning:'bánh mì', emoji:'🍞', ipa:'/bred/', category:'Food'},
+  {word:'rice', meaning:'cơm / gạo', emoji:'🍚', ipa:'/raɪs/', category:'Food'},
+  {word:'water', meaning:'nước', emoji:'💧', ipa:'/ˈwɔː.tər/', category:'Food'},
+
+  {word:'cat', meaning:'con mèo', emoji:'🐱', ipa:'/kæt/', category:'Animals'},
+  {word:'dog', meaning:'con chó', emoji:'🐶', ipa:'/dɒɡ/', category:'Animals'},
+  {word:'fish', meaning:'con cá', emoji:'🐟', ipa:'/fɪʃ/', category:'Animals'},
+  {word:'bird', meaning:'con chim', emoji:'🐦', ipa:'/bɜːd/', category:'Animals'},
+  {word:'rabbit', meaning:'con thỏ', emoji:'🐰', ipa:'/ˈræb.ɪt/', category:'Animals'},
+  {word:'tiger', meaning:'con hổ', emoji:'🐯', ipa:'/ˈtaɪ.ɡər/', category:'Animals'},
+
+  {word:'book', meaning:'quyển sách', emoji:'📘', ipa:'/bʊk/', category:'School'},
+  {word:'pen', meaning:'bút mực', emoji:'🖊️', ipa:'/pen/', category:'School'},
+  {word:'pencil', meaning:'bút chì', emoji:'✏️', ipa:'/ˈpen.səl/', category:'School'},
+  {word:'ruler', meaning:'thước kẻ', emoji:'📏', ipa:'/ˈruː.lər/', category:'School'},
+  {word:'bag', meaning:'cặp / túi', emoji:'🎒', ipa:'/bæɡ/', category:'School'},
+  {word:'desk', meaning:'bàn học', emoji:'🪑', ipa:'/desk/', category:'School'},
+
+  {word:'red', meaning:'màu đỏ', emoji:'🔴', ipa:'/red/', category:'Colors'},
+  {word:'blue', meaning:'màu xanh dương', emoji:'🔵', ipa:'/bluː/', category:'Colors'},
+  {word:'green', meaning:'màu xanh lá', emoji:'🟢', ipa:'/ɡriːn/', category:'Colors'},
+  {word:'yellow', meaning:'màu vàng', emoji:'🟡', ipa:'/ˈjel.əʊ/', category:'Colors'},
+  {word:'black', meaning:'màu đen', emoji:'⚫', ipa:'/blæk/', category:'Colors'},
+  {word:'white', meaning:'màu trắng', emoji:'⚪', ipa:'/waɪt/', category:'Colors'},
+
+  {word:'mother', meaning:'mẹ', emoji:'👩', ipa:'/ˈmʌð.ər/', category:'Family'},
+  {word:'father', meaning:'bố', emoji:'👨', ipa:'/ˈfɑː.ðər/', category:'Family'},
+  {word:'brother', meaning:'anh / em trai', emoji:'👦', ipa:'/ˈbrʌð.ər/', category:'Family'},
+  {word:'sister', meaning:'chị / em gái', emoji:'👧', ipa:'/ˈsɪs.tər/', category:'Family'},
+  {word:'grandma', meaning:'bà', emoji:'👵', ipa:'/ˈɡræn.mɑː/', category:'Family'},
+  {word:'grandpa', meaning:'ông', emoji:'👴', ipa:'/ˈɡræn.pɑː/', category:'Family'},
+
+  {word:'one', meaning:'số một', emoji:'1️⃣', ipa:'/wʌn/', category:'Numbers'},
+  {word:'two', meaning:'số hai', emoji:'2️⃣', ipa:'/tuː/', category:'Numbers'},
+  {word:'three', meaning:'số ba', emoji:'3️⃣', ipa:'/θriː/', category:'Numbers'},
+  {word:'four', meaning:'số bốn', emoji:'4️⃣', ipa:'/fɔːr/', category:'Numbers'},
+  {word:'five', meaning:'số năm', emoji:'5️⃣', ipa:'/faɪv/', category:'Numbers'},
+  {word:'six', meaning:'số sáu', emoji:'6️⃣', ipa:'/sɪks/', category:'Numbers'}
+];
+
+const categoryNames = {All:'Tất cả', Food:'Đồ ăn & thức uống', Animals:'Con vật', School:'Đồ dùng học tập', Colors:'Màu sắc', Family:'Gia đình', Numbers:'Số đếm'};
+let pool=[...WORDS], index=0, speakIndex=0;
+let quizItems=[], quizPos=0, score=0, locked=false;
+
+const $=id=>document.getElementById(id);
+const category=$('category');
+['All',...Object.keys(categoryNames).filter(x=>x!=='All')].forEach(c=>{
+  const o=document.createElement('option');o.value=c;o.textContent=categoryNames[c];category.appendChild(o);
+});
+
+function current(){return pool[index] || WORDS[0]}
+function speakCurrent(){return pool[speakIndex] || WORDS[0]}
+function cleanText(s){return (s||'').toLowerCase().replace(/[^a-z\s'-]/g,'').trim()}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function say(text){
+  if(!('speechSynthesis' in window)){alert('Trình duyệt này chưa hỗ trợ đọc phát âm. Hãy thử Google Chrome.');return}
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=.78;u.pitch=1.03;
+  const voices=speechSynthesis.getVoices();
+  const preferred=voices.find(v=>/en-US/i.test(v.lang)) || voices.find(v=>/^en/i.test(v.lang));
+  if(preferred)u.voice=preferred;
+  speechSynthesis.speak(u);
+}
+
+function renderLearn(){
+  const w=current();$('learnEmoji').textContent=w.emoji;$('learnWord').textContent=w.word;$('learnMeaning').textContent=w.meaning;$('learnPhonetic').textContent=w.ipa;
+  $('learnCount').textContent=`${index+1} / ${pool.length}`;$('learnProgress').style.width=`${((index+1)/pool.length)*100}%`;
+}
+function renderSpeak(reset=true){
+  const w=speakCurrent();$('speakEmoji').textContent=w.emoji;$('speakWord').textContent=w.word;$('speakMeaning').textContent=w.meaning;
+  if(reset)$('speechResult').innerHTML='<div class="small">AI sẽ nghe từ em nói và kiểm tra xem có nhận đúng từ hay không.</div>';
+  $('miniList').innerHTML='';
+  pool.slice(0,12).forEach((x,i)=>{const b=document.createElement('button');b.className='mini-word';b.textContent=`${x.emoji} ${x.word}`;b.onclick=()=>{speakIndex=i;renderSpeak()};$('miniList').appendChild(b)});
+}
+function applyCategory(){
+  const c=category.value;pool=c==='All'?[...WORDS]:WORDS.filter(w=>w.category===c);index=0;speakIndex=0;renderLearn();renderSpeak();startQuiz();
+}
+
+// tabs
+document.querySelectorAll('.pill').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  ['learn','quiz','speak'].forEach(id=>$(id).classList.add('hidden'));$(btn.dataset.tab).classList.remove('hidden');
+}));
+
+category.addEventListener('change',applyCategory);
+$('shuffleBtn').onclick=()=>{pool=shuffle([...pool]);index=0;speakIndex=0;renderLearn();renderSpeak();startQuiz()};
+$('prevWord').onclick=()=>{index=(index-1+pool.length)%pool.length;renderLearn()};
+$('nextWord').onclick=()=>{index=(index+1)%pool.length;renderLearn()};
+$('listenLearn').onclick=()=>say(current().word);
+$('listenSpeak').onclick=()=>say(speakCurrent().word);
+$('speakPrev').onclick=()=>{speakIndex=(speakIndex-1+pool.length)%pool.length;renderSpeak()};
+$('speakNext').onclick=()=>{speakIndex=(speakIndex+1)%pool.length;renderSpeak()};
+
+// Quiz
+function startQuiz(){
+  const src=pool.length>=4?pool:WORDS;
+  quizItems=shuffle([...src]).slice(0,Math.min(10,src.length));quizPos=0;score=0;locked=false;
+  $('restartQuiz').classList.add('hidden');$('nextQuestion').classList.add('hidden');renderQuiz();
+}
+function renderQuiz(){
+  if(quizPos>=quizItems.length){
+    $('quizStep').textContent='Hoàn thành!';$('quizScore').textContent=`⭐ ${score} điểm`;$('quizEmoji').textContent=score>=8?'🏆':'🌟';
+    $('quizTitle').textContent=`Em đúng ${score}/${quizItems.length} câu!`;$('answers').innerHTML='';$('quizFeedback').textContent=score>=8?'Xuất sắc! Em nhớ từ rất tốt! 🎉':'Rất tốt! Hãy ôn thêm rồi thử lại nhé! 💪';$('restartQuiz').classList.remove('hidden');return;
+  }
+  locked=false;const q=quizItems[quizPos];$('quizStep').textContent=`Câu ${quizPos+1}/${quizItems.length}`;$('quizScore').textContent=`⭐ ${score} điểm`;$('quizEmoji').textContent=q.emoji;$('quizTitle').textContent='Hình này là từ nào?';$('quizFeedback').textContent='';$('nextQuestion').classList.add('hidden');
+  const other=shuffle(WORDS.filter(w=>w.word!==q.word)).slice(0,3);const options=shuffle([q,...other]);$('answers').innerHTML='';
+  options.forEach(o=>{const b=document.createElement('button');b.className='answer';b.textContent=o.word;b.onclick=()=>answerQuiz(b,o.word,q.word);$('answers').appendChild(b)});
+}
+function answerQuiz(btn,chosen,correct){
+  if(locked)return;locked=true;document.querySelectorAll('.answer').forEach(b=>{if(b.textContent===correct)b.classList.add('correct')});
+  if(chosen===correct){score++;$('quizFeedback').innerHTML='<span class="good">✅ Chính xác!</span>';say(correct)}else{btn.classList.add('wrong');$('quizFeedback').innerHTML=`<span class="bad">❌ Chưa đúng. Đáp án là <strong>${correct}</strong>.</span>`;say(correct)}
+  $('quizScore').textContent=`⭐ ${score} điểm`;$('nextQuestion').classList.remove('hidden');
+}
+$('nextQuestion').onclick=()=>{quizPos++;renderQuiz()};$('restartQuiz').onclick=startQuiz;
+
+// Speech recognition
+const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+let recognition=null;
+if(SpeechRecognition){
+  recognition=new SpeechRecognition();recognition.lang='en-US';recognition.interimResults=false;recognition.maxAlternatives=3;
+  recognition.onstart=()=>{$('micBtn').classList.add('listening');$('micBtn').textContent='🎙️ Đang nghe...';$('speechResult').innerHTML='<div class="small">Hãy nói rõ một lần nhé...</div>'};
+  recognition.onend=()=>{$('micBtn').classList.remove('listening');$('micBtn').textContent='🎤 Nhấn và nói'};
+  recognition.onerror=e=>{$('speechResult').innerHTML=`<div class="bad"><strong>Chưa nghe được.</strong></div><div class="small">Hãy kiểm tra quyền micro hoặc thử lại trên Google Chrome. (${e.error})</div>`};
+  recognition.onresult=e=>{
+    const target=cleanText(speakCurrent().word);const alternatives=[];for(let i=0;i<e.results[0].length;i++)alternatives.push(cleanText(e.results[0][i].transcript));
+    const heard=alternatives[0]||'';const ok=alternatives.includes(target) || alternatives.some(x=>x.split(/\s+/).includes(target));
+    if(ok){$('speechResult').innerHTML=`<div class="stars">⭐⭐⭐</div><div class="good"><strong>Rất tốt!</strong> AI đã nhận đúng từ <b>${target}</b>.</div><div class="heard">AI nghe được: “${heard}”</div>`}
+    else{$('speechResult').innerHTML=`<div class="stars">⭐</div><div class="bad"><strong>Thử lại nhé!</strong></div><div class="heard">AI nghe được: “${heard||'...'}”</div><div class="small">Nhấn 🔊 nghe mẫu, sau đó nói chậm và rõ hơn.</div>`}
+  };
+}
+$('micBtn').onclick=()=>{
+  if(!recognition){$('speechResult').innerHTML='<div class="bad"><strong>Trình duyệt chưa hỗ trợ nhận dạng giọng nói.</strong></div><div class="small">Hãy mở file bằng Google Chrome phiên bản mới.</div>';return}
+  try{recognition.abort();setTimeout(()=>recognition.start(),120)}catch(e){try{recognition.start()}catch(_) {}}
+};
+
+renderLearn();renderSpeak();startQuiz();
+</script>
+</body>
+</html>
